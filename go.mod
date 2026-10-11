@@ -11,7 +11,7 @@ require (
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.18.2
 	google.golang.org/grpc v1.83.2
-	google.golang.org/protobuf v1.36.11
+	google.golang.org/protobuf v1.36.12
 )
 
 require (
