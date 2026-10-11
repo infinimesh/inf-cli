@@ -46,7 +46,7 @@ jobs:
           mkdir -p dist
           go build -o dist/inf-${GOOS}-${GOARCH}${{ matrix.ext }} .
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: inf-${{ matrix.goos }}-${{ matrix.goarch }}
           path: dist/inf-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}
