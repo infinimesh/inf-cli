@@ -11,7 +11,7 @@ builds:
       - CGO_ENABLED=0
     binary: inf
     ldflags:
-      - -s -w -X github.com/infinimesh/inf/cmd.VERSION={{.Version}}
+      - -s -w -X github.com/infinimesh/inf-cli/cmd.VERSION={{.Version}}
     tags:
       - infinimesh
       - cli
@@ -64,7 +64,7 @@ release:
 
 brews:
   - name: inf
-    homepage: "https://github.com/infinimesh/infinimesh"
+    homepage: "https://github.com/infinimesh/core"
     license: "Apache-2.0"
     description: "infinimesh Platform CLI"
     caveats: "Start with inf help login ;)"
@@ -77,7 +77,7 @@ brews:
 
 nfpms:
   - package_name: inf
-    homepage: https://github.com/infinimesh/infinimesh
+    homepage: https://github.com/infinimesh/core
     maintainer: slntopp info@slnt-opp.xyz
     description: infinimesh Platform CLI
     license: Apache 2.0
@@ -104,7 +104,7 @@ nfpms:
 aurs:
   - name: inf-bin
 
-    homepage: "https://github.com/infinimesh/infinimesh"
+    homepage: "https://github.com/infinimesh/core"
     description: "infinimesh Platform CLI"
 
     maintainers:

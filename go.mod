@@ -1,12 +1,12 @@
-module github.com/infinimesh/inf
+module github.com/infinimesh/inf-cli
 
 go 1.24.0
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/eclipse/paho.mqtt.golang v1.4.1
-	github.com/infinimesh/infinimesh v1.0.1-0.20220627205157-feae0cff767e
-	github.com/infinimesh/proto v0.0.0-20240206143316-baaaf1972c54
+	github.com/infinimesh/core v0.0.0-20261011144956-84eaf2a5adc5
+	github.com/infinimesh/proto v0.0.0-20261011144652-104ae634a302
 	github.com/jedib0t/go-pretty/v6 v6.3.3
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.18.2
@@ -44,7 +44,3 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/infinimesh/proto => ../third_party/infinimesh-proto
-
-replace github.com/infinimesh/infinimesh => ..

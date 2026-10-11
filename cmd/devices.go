@@ -26,7 +26,7 @@ import (
 	"strings"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
-	"github.com/infinimesh/infinimesh/pkg/convert"
+	"github.com/infinimesh/core/pkg/convert"
 	pb "github.com/infinimesh/proto/node"
 	"github.com/infinimesh/proto/node/access"
 	devpb "github.com/infinimesh/proto/node/devices"

@@ -1,6 +1,6 @@
 # infinimesh CLI
 
-Official CLI for [infinimesh Platform](https://github.com/infinimesh/infinimesh)
+Official CLI for [infinimesh Platform](https://github.com/infinimesh/core)
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ You must authorize first, to use other commands, see `inf help login`.
 
 ## Installation
 
-[See CLI reference at main repo page](https://github.com/infinimesh/infinimesh#infinimesh-cli)
+[See CLI reference at main repo page](https://github.com/infinimesh/core#infinimesh-cli)
 
 ## Notes
 
