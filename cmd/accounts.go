@@ -102,7 +102,7 @@ var listAccountsCmd = &cobra.Command{
 			return err
 		}
 
-		r, err := client.List(ctx, &pb.EmptyMessage{})
+		r, err := listAllAccounts(ctx, client)
 		if err != nil {
 			return err
 		}

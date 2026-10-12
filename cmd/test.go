@@ -23,15 +23,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	pb "github.com/infinimesh/proto/handsfree"
+	pb "github.com/infinimesh/proto/pairing"
 )
 
-func makeHFServiceClient(ctx context.Context) (pb.HandsfreeServiceClient, error) {
+func makeHFServiceClient(ctx context.Context) (pb.PairingServiceClient, error) {
 	conn, err := makeConnection(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return pb.NewHandsfreeServiceClient(conn), nil
+	return pb.NewPairingServiceClient(conn), nil
 }
 
 var testCmd = &cobra.Command{

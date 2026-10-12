@@ -53,7 +53,7 @@ var listNsCmd = &cobra.Command{
 			return err
 		}
 
-		r, err := client.List(ctx, &pb.EmptyMessage{})
+		r, err := listAllNamespaces(ctx, client)
 		if err != nil {
 			return err
 		}
