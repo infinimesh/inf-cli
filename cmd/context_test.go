@@ -99,3 +99,11 @@ func TestNormalizeAPIHost(t *testing.T) {
 		}
 	}
 }
+
+func TestNormalizeAPIHostRejectsBrokenHost(t *testing.T) {
+	for _, in := range []string{"[", ":", "/"} {
+		if _, err := normalizeAPIHost(in); err == nil {
+			t.Fatalf("normalizeAPIHost(%q) returned a host", in)
+		}
+	}
+}
