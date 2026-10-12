@@ -7,7 +7,6 @@ Official CLI for [infinimesh Platform](https://github.com/infinimesh/core)
 * [Usage](#usage)
 * [Installation](#installation)
 * [Notes](#notes)
-* [Example Configs](#example-configs)
 
 ## Usage
 
@@ -18,7 +17,34 @@ You must authorize first, to use other commands, see `inf help login`.
 
 ## Installation
 
-[See CLI reference at main repo page](https://github.com/infinimesh/core#infinimesh-cli)
+### Homebrew (macOS and Linux)
+
+```shell
+brew tap infinimesh/inf-cli https://github.com/infinimesh/inf-cli
+brew install inf
+```
+
+If brew says the tap is untrusted, run `brew trust infinimesh/inf-cli` once and install again.
+
+### Prebuilt binaries
+
+Download the archive for your system from the [releases page](https://github.com/infinimesh/inf-cli/releases), unpack it and put `inf` somewhere on your `PATH`.
+
+### Go install
+
+```shell
+go install github.com/infinimesh/inf-cli@latest
+```
+
+This installs a binary named `inf-cli`. Rename it to `inf` so the commands in the docs work.
+
+### Build from source
+
+```shell
+git clone https://github.com/infinimesh/inf-cli
+cd inf-cli
+go build -o inf .
+```
 
 ## Notes
 
