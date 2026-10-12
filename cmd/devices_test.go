@@ -58,3 +58,35 @@ func TestMakeDevicesTokenUsesAccessMap(t *testing.T) {
 		t.Fatalf("expected dev-two to default to NONE, got %v", mock.last["dev-two"])
 	}
 }
+
+func TestStateTokenRequest(t *testing.T) {
+	read := stateTokenRequest([]string{"dev"}, "", "", "")
+	if read.Post || read.Devices["dev"] != access.Level_READ {
+		t.Fatalf("get token = post %v level %v", read.Post, read.Devices["dev"])
+	}
+
+	reported := stateTokenRequest([]string{"dev"}, "", `{"t":1}`, "")
+	if !reported.Post || reported.Devices["dev"] != access.Level_READ {
+		t.Fatalf("reported token = post %v level %v", reported.Post, reported.Devices["dev"])
+	}
+
+	desired := stateTokenRequest([]string{"dev"}, `{"t":1}`, "", "")
+	if desired.Post || desired.Devices["dev"] != access.Level_MGMT {
+		t.Fatalf("desired token = post %v level %v", desired.Post, desired.Devices["dev"])
+	}
+
+	both := stateTokenRequest([]string{"dev"}, `{"t":1}`, `{"t":1}`, "")
+	if !both.Post || both.Devices["dev"] != access.Level_MGMT {
+		t.Fatalf("patch and report token = post %v level %v", both.Post, both.Devices["dev"])
+	}
+
+	dropReported := stateTokenRequest([]string{"dev"}, "", "", "reported.temp")
+	if !dropReported.Post || dropReported.Devices["dev"] != access.Level_READ {
+		t.Fatalf("remove reported token = post %v level %v", dropReported.Post, dropReported.Devices["dev"])
+	}
+
+	dropDesired := stateTokenRequest([]string{"dev"}, "", "", "desired.temp")
+	if dropDesired.Post || dropDesired.Devices["dev"] != access.Level_MGMT {
+		t.Fatalf("remove desired token = post %v level %v", dropDesired.Post, dropDesired.Devices["dev"])
+	}
+}
