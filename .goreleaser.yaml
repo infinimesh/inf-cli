@@ -60,6 +60,12 @@ brews:
       owner: infinimesh
       name: inf-cli
       branch: "homebrew/inf-{{ .Version }}"
+      pull_request:
+        enabled: true
+        base:
+          owner: infinimesh
+          name: inf-cli
+          branch: main
     commit_author:
       name: "github-actions[bot]"
       email: "41898282+github-actions[bot]@users.noreply.github.com"
