@@ -49,9 +49,11 @@ release:
   github:
     owner: infinimesh
     name: inf-cli
+  make_latest: '{{ if contains "-rc." .Tag }}false{{ else }}true{{ end }}'
 
 brews:
   - name: inf
+    skip_upload: '{{ if contains "-rc." .Tag }}true{{ else }}false{{ end }}'
     homepage: "https://github.com/infinimesh/inf-cli"
     description: "Command line tool for the infinimesh IoT platform"
     license: "Apache-2.0"
