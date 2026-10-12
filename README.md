@@ -28,7 +28,7 @@ If brew says the tap is untrusted, run `brew trust infinimesh/inf-cli` once and 
 
 ### Prebuilt binaries
 
-Download the archive for your system from the [releases page](https://github.com/infinimesh/inf-cli/releases), unpack it and put `inf` somewhere on your `PATH`.
+Download the archive for your system from the [releases page](https://github.com/infinimesh/inf-cli/releases), unpack it and put `inf` somewhere on your `PATH`. A `vX.Y.Z-rc.N` tag is a GitHub pre-release and does not update the Homebrew formula.
 
 ### Go install
 
