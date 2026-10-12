@@ -241,10 +241,9 @@ var mgmtDeviceStateCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := makeContextWithBearerToken()
 
-		devices := map[string]access.Level{}
-		for _, d := range args {
-			devices[d] = access.Level_NONE
-		}
+		patch, _ := cmd.Flags().GetString("patch")
+		report, _ := cmd.Flags().GetString("report")
+		remove, _ := cmd.Flags().GetString("remove")
 
 		var token string
 		if t, _ := cmd.Flags().GetString("token"); t != "" {
@@ -254,10 +253,7 @@ var mgmtDeviceStateCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
-			r, err := client.MakeDevicesToken(ctx, &pb.DevicesTokenRequest{
-				Devices: devices,
-				Post:    true,
-			})
+			r, err := client.MakeDevicesToken(ctx, stateTokenRequest(args, patch, report, remove))
 			if err != nil {
 				return err
 			}
@@ -270,7 +266,7 @@ var mgmtDeviceStateCmd = &cobra.Command{
 			return err
 		}
 
-		if patch, _ := cmd.Flags().GetString("patch"); patch != "" {
+		if patch != "" {
 			req := &shadowpb.Shadow{
 				Device: args[0],
 				Desired: &shadowpb.State{
@@ -289,7 +285,7 @@ var mgmtDeviceStateCmd = &cobra.Command{
 			}
 		}
 
-		if report, _ := cmd.Flags().GetString("report"); report != "" {
+		if report != "" {
 			req := &shadowpb.Shadow{
 				Device: args[0],
 				Reported: &shadowpb.State{
@@ -308,7 +304,7 @@ var mgmtDeviceStateCmd = &cobra.Command{
 			}
 		}
 
-		if remove, _ := cmd.Flags().GetString("remove"); remove != "" {
+		if remove != "" {
 			input := strings.SplitN(remove, ".", 2)
 			req := &shadowpb.RemoveRequest{
 				Device: args[0],
@@ -371,6 +367,30 @@ var mgmtDeviceStateCmd = &cobra.Command{
 		}
 		return nil
 	},
+}
+
+func stateTokenRequest(ids []string, patch, report, remove string) *pb.DevicesTokenRequest {
+	level := access.Level_READ
+	post := false
+	if patch != "" {
+		level = access.Level_MGMT
+	}
+	if report != "" {
+		post = true
+	}
+	if remove != "" {
+		side, _, _ := strings.Cut(remove, ".")
+		if side == "reported" {
+			post = true
+		} else {
+			level = access.Level_MGMT
+		}
+	}
+	devices := map[string]access.Level{}
+	for _, id := range ids {
+		devices[id] = level
+	}
+	return &pb.DevicesTokenRequest{Devices: devices, Post: post}
 }
 
 var mgmtDevIceStateMQTTCmd = &cobra.Command{
