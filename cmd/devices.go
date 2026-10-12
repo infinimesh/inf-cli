@@ -146,10 +146,21 @@ var makeDeviceTokenCmd = &cobra.Command{
 }
 
 var createDeviceCmd = &cobra.Command{
-	Use:     "create",
-	Short:   "Create infinimesh device",
+	Use:   "create <template.json|template.yaml> --crt <cert.pem>",
+	Short: "Create infinimesh device",
+	Long: `Create a device from a JSON or YAML template and a certificate.
+
+The template holds the device fields, for example {"title": "pump-7", "enabled": true}.`,
 	Aliases: []string{"add", "a", "new", "crt"},
+	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 1 {
+			return errors.New("expected one argument: the path to a device template (.json, .yml or .yaml)")
+		}
+		if certPath, _ := cmd.Flags().GetString("crt"); certPath == "" {
+			return errors.New("--crt is required: the path to the device certificate")
+		}
+
 		ctx := makeContextWithBearerToken()
 		client, err := makeDevicesServiceClient(ctx)
 		if err != nil {
