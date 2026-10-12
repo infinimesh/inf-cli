@@ -183,31 +183,32 @@ func normalizeAPIHost(host string) (string, error) {
 		return "", fmt.Errorf("api host is empty")
 	}
 	if parsed, err := url.Parse(host); err == nil && parsed.Host != "" {
-		host = parsed.Host
-		// If port is explicitly set, keep it; otherwise fall through to default handling below.
-		if parsed.Port() != "" {
-			return strings.TrimSuffix(host, "/"), nil
+		candidate := parsed.Host
+		if parsed.Port() == "" {
+			candidate = parsed.Host + ":8000"
 		}
-		if parsed.Scheme == "http" {
-			return parsed.Host + ":8000", nil
-		}
-		if parsed.Scheme == "https" {
-			return parsed.Host + ":8000", nil
-		}
+		return requireHostPort(candidate)
 	}
 
 	host = strings.TrimPrefix(host, "http://")
 	host = strings.TrimPrefix(host, "https://")
-	host = strings.TrimSuffix(host, "/")
+	host = strings.Trim(host, "/")
+	if host == "" {
+		return "", fmt.Errorf("api host is empty")
+	}
+	if _, _, err := net.SplitHostPort(host); err != nil {
+		if strings.Contains(host, ":") {
+			return "", fmt.Errorf("invalid api host: %s", err)
+		}
+		host = host + ":" + strconv.Itoa(8000)
+	}
+	return requireHostPort(host)
+}
 
-	_, _, err := net.SplitHostPort(host)
-	if err == nil {
-		return host, nil
+func requireHostPort(host string) (string, error) {
+	name, port, err := net.SplitHostPort(host)
+	if err != nil || name == "" || port == "" {
+		return "", fmt.Errorf("invalid api host: %s", host)
 	}
-	// if missing port, add default 8000
-	if strings.Contains(host, ":") {
-		// malformed host:port
-		return "", fmt.Errorf("invalid api host: %s", err)
-	}
-	return host + ":" + strconv.Itoa(8000), nil
+	return host, nil
 }
