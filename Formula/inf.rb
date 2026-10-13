@@ -5,21 +5,21 @@
 class Inf < Formula
   desc "Command line tool for the infinimesh IoT platform"
   homepage "https://github.com/infinimesh/inf-cli"
-  version "3.2.0"
+  version "3.4.0-rc.14"
   license "Apache-2.0"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/infinimesh/inf-cli/releases/download/v3.2.0/inf_3.2.0_darwin_amd64.tar.gz"
-      sha256 "df2aa4988a9ffb78a9d4fdfa92f9d0feca956f2e7f1b546b39b65b226bbf828f"
+      url "https://github.com/infinimesh/inf-cli/releases/download/v3.4.0-rc.14/inf_3.4.0-rc.14_darwin_amd64.tar.gz"
+      sha256 "e457086f0d8ae17e7879967802b8e95aedea0c7412112debd5950869ba8f7cb2"
 
       define_method(:install) do
         bin.install "inf"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/infinimesh/inf-cli/releases/download/v3.2.0/inf_3.2.0_darwin_arm64.tar.gz"
-      sha256 "c4f3fcd218e30e217a771c3ea2ec3f55db956c232555f3cd775f7147d02546f8"
+      url "https://github.com/infinimesh/inf-cli/releases/download/v3.4.0-rc.14/inf_3.4.0-rc.14_darwin_arm64.tar.gz"
+      sha256 "5cad39296eba0859beebb45bdeb3062fd392f3fef7c863c7b03832b4d105f03a"
 
       define_method(:install) do
         bin.install "inf"
@@ -29,15 +29,15 @@ class Inf < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/infinimesh/inf-cli/releases/download/v3.2.0/inf_3.2.0_linux_amd64.tar.gz"
-      sha256 "0d382e9cb647fb17389e90dd284f195aa870df9b227e950f32727bafb8c756c8"
+      url "https://github.com/infinimesh/inf-cli/releases/download/v3.4.0-rc.14/inf_3.4.0-rc.14_linux_amd64.tar.gz"
+      sha256 "debf1232b814182840a48c2f12de711f17b5ca8494ad0bb39f5672985294f7db"
       define_method(:install) do
         bin.install "inf"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/infinimesh/inf-cli/releases/download/v3.2.0/inf_3.2.0_linux_arm64.tar.gz"
-      sha256 "32b6e7326116dad44ee3d4506dc118d5416f11ae245fa2098ca3dae2502defbe"
+      url "https://github.com/infinimesh/inf-cli/releases/download/v3.4.0-rc.14/inf_3.4.0-rc.14_linux_arm64.tar.gz"
+      sha256 "6f8f759c03c4c06fed1beed21582ed8aee7c2091fb2a89e1a2e7778d59ffce46"
       define_method(:install) do
         bin.install "inf"
       end
