@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -28,8 +27,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/credentials/insecure"
 
 	pb "github.com/infinimesh/proto/node"
 	accpb "github.com/infinimesh/proto/node/accounts"
@@ -99,10 +96,10 @@ var loginCmd = &cobra.Command{
 			return err
 		}
 
-		creds := credentials.NewTLS(&tls.Config{InsecureSkipVerify: true})
-		insec, _ := cmd.Flags().GetBool("insecure")
-		if insec {
-			creds = insecure.NewCredentials()
+		insec := flagBool("insecure", "insecure")
+		creds, err := transportCreds()
+		if err != nil {
+			return err
 		}
 		conn, err := grpc.Dial(resolvedHost, grpc.WithTransportCredentials(creds))
 		if err != nil {
@@ -132,11 +129,15 @@ var loginCmd = &cobra.Command{
 		printToken, _ := cmd.Flags().GetBool("print-token")
 		if printToken {
 			fmt.Println(token)
+		} else {
+			fmt.Printf("Logged in to %s\n", resolvedHost)
 		}
 
 		viper.Set("infinimesh", resolvedHost)
 		viper.Set("token", token)
 		viper.Set("insecure", insec)
+		viper.Set("insecure_skip_verify", flagBool("insecure-skip-verify", "insecure_skip_verify"))
+		viper.Set("ca_file", flagString("ca-file", "ca_file"))
 
 		err = viper.WriteConfig()
 		return err
@@ -164,8 +165,7 @@ var versionCmd = &cobra.Command{
 }
 
 func init() {
-	loginCmd.Flags().Bool("print-token", false, "")
-	loginCmd.Flags().Bool("insecure", false, "Use WithInsecure instead of TLS")
+	loginCmd.Flags().Bool("print-token", false, "Print the token instead of a confirmation")
 	loginCmd.Flags().Bool("ldap", false, "Use Credentials Type LDAP")
 	loginCmd.Flags().String("api", "", "API endpoint (host:port or URL)")
 	loginCmd.Flags().String("username", "", "Username (defaults to positional arg if provided)")

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	pb "github.com/infinimesh/proto/node"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
@@ -54,14 +55,15 @@ func TestLoginStoresContext(t *testing.T) {
 	if err := loginCmd.Flags().Set("password", "secret"); err != nil {
 		t.Fatalf("set password flag: %v", err)
 	}
-	if err := loginCmd.Flags().Set("insecure", "true"); err != nil {
+	if err := rootCmd.PersistentFlags().Set("insecure", "true"); err != nil {
 		t.Fatalf("set insecure flag: %v", err)
 	}
 	t.Cleanup(func() {
 		_ = loginCmd.Flags().Set("api", "")
 		_ = loginCmd.Flags().Set("username", "")
 		_ = loginCmd.Flags().Set("password", "")
-		_ = loginCmd.Flags().Set("insecure", "false")
+		_ = rootCmd.PersistentFlags().Set("insecure", "false")
+		rootCmd.PersistentFlags().VisitAll(func(f *pflag.Flag) { f.Changed = false })
 	})
 
 	if err := loginCmd.RunE(loginCmd, nil); err != nil {

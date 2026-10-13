@@ -49,9 +49,13 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	rootCmd.SilenceUsage = true
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.default.infinimesh.yaml)")
 	rootCmd.PersistentFlags().Bool("json", false, "Print output as json")
 	rootCmd.PersistentFlags().Bool("verbose", false, "Print additional info related to the CLI itself")
+	rootCmd.PersistentFlags().Bool("insecure", false, "Use plain HTTP/2 instead of TLS")
+	rootCmd.PersistentFlags().Bool("insecure-skip-verify", false, "Skip TLS certificate verification")
+	rootCmd.PersistentFlags().String("ca-file", "", "PEM file of CAs to trust")
 }
 
 // initConfig reads in config file and ENV variables if set.
