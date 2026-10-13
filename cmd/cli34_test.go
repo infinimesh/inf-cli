@@ -1,11 +1,15 @@
 package cmd
 
 import (
+	"bytes"
+	"path/filepath"
 	"strings"
 	"testing"
 
+	rulespb "github.com/infinimesh/proto/node/rules"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc/metadata"
 )
 
 func TestDeviceCommandsRequireAnID(t *testing.T) {
@@ -84,11 +88,85 @@ func TestDryRunCompilesCEL(t *testing.T) {
 }
 
 func TestAssignAndAuditRequireFilters(t *testing.T) {
-	if err := assignOTACmd.RunE(assignOTACmd, nil); err == nil || !strings.Contains(err.Error(), "--namespace") {
+	_ = assignOTACmd.Flags().Set("namespace", "")
+	_ = assignOTACmd.Flags().Set("version", "")
+	_ = assignOTACmd.Flags().Set("tag", "")
+	_ = assignOTACmd.Flags().Set("device", "")
+	if err := assignOTACmd.RunE(assignOTACmd, nil); err == nil || !strings.Contains(err.Error(), "--device") {
 		t.Fatalf("ota: %v", err)
+	}
+	if err := assignOTACmd.Flags().Set("version", "1.2.3"); err != nil {
+		t.Fatal(err)
+	}
+	if err := assignOTACmd.Flags().Set("device", "dev-1"); err != nil {
+		t.Fatal(err)
+	}
+	viper.Set("infinimesh", "")
+	err := assignOTACmd.RunE(assignOTACmd, nil)
+	if err == nil || strings.Contains(err.Error(), "--version and one of") {
+		t.Fatalf("device assign was rejected: %v", err)
 	}
 	if err := auditCmd.RunE(auditCmd, nil); err == nil || !strings.Contains(err.Error(), "--device") {
 		t.Fatalf("audit: %v", err)
+	}
+}
+
+func TestFormatRulePrintsClearCooldownRepeat(t *testing.T) {
+	out := formatRule(&rulespb.Rule{Uuid: "u", When: "w", Clear: "c", Cooldown: "10m", Repeat: "1h", OnClear: true})
+	for _, part := range []string{"clear: c", "cooldown: 10m", "repeat: 1h", "on_clear: true"} {
+		if !strings.Contains(out, part) {
+			t.Fatalf("missing %q in %q", part, out)
+		}
+	}
+}
+
+func TestTokenFlagOverridesStored(t *testing.T) {
+	viper.Set("token", "stored")
+	if err := rootCmd.PersistentFlags().Set("token", "override"); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		_ = rootCmd.PersistentFlags().Set("token", "")
+		rootCmd.PersistentFlags().Lookup("token").Changed = false
+		viper.Set("token", "")
+	})
+	ctx := makeContextWithBearerToken()
+	md, ok := metadata.FromOutgoingContext(ctx)
+	if !ok || len(md.Get("authorization")) != 1 || md.Get("authorization")[0] != "Bearer override" {
+		t.Fatalf("%v", md)
+	}
+}
+
+func TestLoginErrorIsNotPrintedByCobra(t *testing.T) {
+	if !rootCmd.SilenceErrors {
+		t.Fatal("cobra prints the error and CheckErr prints it again")
+	}
+	initialized = false
+	cfgFile = filepath.Join(t.TempDir(), "config.yaml")
+	viper.Reset()
+	buf := &bytes.Buffer{}
+	rootCmd.SetOut(buf)
+	rootCmd.SetErr(buf)
+	rootCmd.SetArgs([]string{"login"})
+	t.Cleanup(func() {
+		rootCmd.SetArgs(nil)
+		rootCmd.SetOut(nil)
+		rootCmd.SetErr(nil)
+		initialized = false
+	})
+	err := rootCmd.Execute()
+	if err == nil || strings.Contains(buf.String(), err.Error()) {
+		t.Fatalf("cobra printed %q (%v)", buf.String(), err)
+	}
+}
+
+func TestMetricsRequiresAddr(t *testing.T) {
+	if err := metricsCmd.Flags().Set("addr", ""); err != nil {
+		t.Fatal(err)
+	}
+	err := metricsCmd.RunE(metricsCmd, nil)
+	if err == nil || !strings.Contains(err.Error(), "--addr") {
+		t.Fatalf("%v", err)
 	}
 }
 

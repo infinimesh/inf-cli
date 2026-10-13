@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -120,6 +121,13 @@ var loginCmd = &cobra.Command{
 				Type: t, Data: []string{username, password},
 			},
 		}
+		if root, err := cmd.Flags().GetBool("root"); err != nil {
+			return err
+		} else if root {
+			on := true
+			req.Inf = &on
+			req.Infinite = &on
+		}
 
 		res, err := client.Token(context.Background(), req)
 		if err != nil {
@@ -133,11 +141,26 @@ var loginCmd = &cobra.Command{
 			fmt.Printf("Logged in to %s\n", resolvedHost)
 		}
 
+		skipVerify := flagBool("insecure-skip-verify", "insecure_skip_verify")
+		caFile := flagString("ca-file", "ca_file")
+		if rootCmd.PersistentFlags().Changed("ca-file") {
+			if caFile != "" {
+				abs, err := filepath.Abs(caFile)
+				if err != nil {
+					return err
+				}
+				caFile = abs
+			}
+			if !rootCmd.PersistentFlags().Changed("insecure-skip-verify") {
+				skipVerify = false
+			}
+		}
+
 		viper.Set("infinimesh", resolvedHost)
 		viper.Set("token", token)
 		viper.Set("insecure", insec)
-		viper.Set("insecure_skip_verify", flagBool("insecure-skip-verify", "insecure_skip_verify"))
-		viper.Set("ca_file", flagString("ca-file", "ca_file"))
+		viper.Set("insecure_skip_verify", skipVerify)
+		viper.Set("ca_file", caFile)
 
 		err = viper.WriteConfig()
 		return err
@@ -166,6 +189,7 @@ var versionCmd = &cobra.Command{
 
 func init() {
 	loginCmd.Flags().Bool("print-token", false, "Print the token instead of a confirmation")
+	loginCmd.Flags().Bool("root", false, "Request a root token. Plugin create and delete need one")
 	loginCmd.Flags().Bool("ldap", false, "Use Credentials Type LDAP")
 	loginCmd.Flags().String("api", "", "API endpoint (host:port or URL)")
 	loginCmd.Flags().String("username", "", "Username (defaults to positional arg if provided)")
@@ -177,7 +201,7 @@ func init() {
 }
 
 // normalizeAPIHost accepts host[:port] or URL and returns host:port,
-// defaulting to port 8000 if none provided.
+// defaulting to port 443 if none provided.
 func normalizeAPIHost(host string) (string, error) {
 	if host == "" {
 		return "", fmt.Errorf("api host is empty")
@@ -185,7 +209,7 @@ func normalizeAPIHost(host string) (string, error) {
 	if parsed, err := url.Parse(host); err == nil && parsed.Host != "" {
 		candidate := parsed.Host
 		if parsed.Port() == "" {
-			candidate = parsed.Host + ":8000"
+			candidate = parsed.Host + ":443"
 		}
 		return requireHostPort(candidate)
 	}
@@ -200,7 +224,7 @@ func normalizeAPIHost(host string) (string, error) {
 		if strings.Contains(host, ":") {
 			return "", fmt.Errorf("invalid api host: %s", err)
 		}
-		host = host + ":" + strconv.Itoa(8000)
+		host = host + ":" + strconv.Itoa(443)
 	}
 	return requireHostPort(host)
 }

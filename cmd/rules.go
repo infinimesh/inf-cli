@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"cel.dev/cel-go/cel"
 	pb "github.com/infinimesh/proto/node"
@@ -55,11 +56,18 @@ func ruleFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("on-clear", false, "Run actions when the alarm clears")
 }
 
-func printRule(rule *rulespb.Rule) {
-	fmt.Printf("%s\t%s\t%s\nwhen: %s\n", rule.GetUuid(), rule.GetNamespace(), rule.GetName(), rule.GetWhen())
-	if rule.GetClear() != "" {
-		fmt.Printf("clear: %s\n", rule.GetClear())
+func formatRule(rule *rulespb.Rule) string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "%s\t%s\t%s\nwhen: %s\nclear: %s\ncooldown: %s\nrepeat: %s\n",
+		rule.GetUuid(), rule.GetNamespace(), rule.GetName(), rule.GetWhen(), rule.GetClear(), rule.GetCooldown(), rule.GetRepeat())
+	if rule.GetOnClear() {
+		fmt.Fprintf(&b, "on_clear: true\n")
 	}
+	return b.String()
+}
+
+func printRule(rule *rulespb.Rule) {
+	fmt.Print(formatRule(rule))
 }
 
 var rulesCmd = &cobra.Command{Use: "rules", Short: "Manage rules", Aliases: []string{"rule"}, RunE: listRulesCmd.RunE}
