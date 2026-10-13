@@ -42,6 +42,8 @@ jobs:
           args: ${{ contains(github.ref_name, '-rc.') && 'release --clean -f .goreleaser.yaml -f .goreleaser.rc.yaml' || 'release --clean' }}
         env:
           GITHUB_TOKEN: ${{ steps.app.outputs.token || secrets.GITHUB_TOKEN }}
+          # A final and its last rc share a commit, so pin goreleaser to the pushed tag.
+          GORELEASER_CURRENT_TAG: ${{ github.ref_name }}
 
       - name: Merge the Homebrew formula PR
         if: ${{ !contains(github.ref_name, '-rc.') }}
