@@ -2,7 +2,9 @@ name: Release
 
 on:
   push:
-    tags: ["v*"]
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+"
 
 permissions:
   contents: write
@@ -11,7 +13,19 @@ permissions:
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
+    env:
+      HAS_APP: ${{ secrets.RELEASE_APP_ID != '' && secrets.RELEASE_APP_PRIVATE_KEY != '' }}
     steps:
+      # The App token lets the Homebrew formula PR start CI so it can auto-merge.
+      - uses: actions/create-github-app-token@v2
+        if: env.HAS_APP == 'true'
+        id: app
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: infinimesh
+          repositories: inf-cli
+
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
@@ -27,4 +41,16 @@ jobs:
           version: "~> v2"
           args: ${{ contains(github.ref_name, '-rc.') && 'release --clean -f .goreleaser.yaml -f .goreleaser.rc.yaml' || 'release --clean' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app.outputs.token || secrets.GITHUB_TOKEN }}
+
+      - name: Merge the Homebrew formula PR
+        if: ${{ !contains(github.ref_name, '-rc.') }}
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token || secrets.GITHUB_TOKEN }}
+        run: |
+          b="homebrew/inf-${GITHUB_REF_NAME#v}"
+          if ! gh pr view "$b" >/dev/null 2>&1; then
+            echo "::warning::no formula PR on $b"; exit 0
+          fi
+          gh pr merge "$b" --squash --auto --delete-branch \
+            || echo "::warning::could not enable auto-merge for $b, merge it by hand"

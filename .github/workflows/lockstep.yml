@@ -1,0 +1,50 @@
+name: Lockstep with core
+
+# core's release orchestrator sends core-release {version, prerelease}.
+# This tags the same version on main with the infinimesh-release App token,
+# which starts release.yml (goreleaser).
+on:
+  repository_dispatch:
+    types: [core-release]
+
+permissions:
+  contents: read
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    env:
+      V: ${{ github.event.client_payload.version }}
+      HAS_APP: ${{ secrets.RELEASE_APP_ID != '' && secrets.RELEASE_APP_PRIVATE_KEY != '' }}
+    steps:
+      - name: Check inputs
+        id: ok
+        run: |
+          if [ "$HAS_APP" != "true" ]; then
+            echo "::warning::RELEASE_APP_ID / RELEASE_APP_PRIVATE_KEY are not set, skipping. See infinimesh/core RELEASING.md."
+            echo "run=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          printf '%s\n' "$V" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$' || { echo "::error::bad version $V"; exit 1; }
+          echo "run=true" >> "$GITHUB_OUTPUT"
+      - uses: actions/create-github-app-token@v2
+        if: steps.ok.outputs.run == 'true'
+        id: app
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: infinimesh
+          repositories: inf-cli
+      - uses: actions/checkout@v7
+        if: steps.ok.outputs.run == 'true'
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ steps.app.outputs.token }}
+      - name: Tag main
+        if: steps.ok.outputs.run == 'true'
+        run: |
+          if git rev-parse -q --verify "refs/tags/$V" >/dev/null; then
+            echo "$V already tagged"; exit 0
+          fi
+          git tag "$V"
+          git push origin "$V"
