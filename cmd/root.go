@@ -37,8 +37,12 @@ var rootCmd = &cobra.Command{
 
 var VERSION string
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+func SetVersion(v string) {
+	if v != "" {
+		VERSION = v
+	}
+}
+
 func Execute() {
 	if VERSION == "" {
 		VERSION = "dev"

@@ -17,6 +17,10 @@ package main
 
 import "github.com/infinimesh/inf-cli/cmd"
 
+// version is set by goreleaser: -X main.version={{.Version}}
+var version string
+
 func main() {
+	cmd.SetVersion(version)
 	cmd.Execute()
 }
