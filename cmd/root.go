@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 
@@ -88,12 +89,7 @@ func initConfig() {
 
 	viper.AutomaticEnv() // read in environment variables that match
 
-	if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-		if _, err := os.Create(cfgFile); err != nil { // perm 0666
-			fmt.Fprintln(os.Stderr, "Can't create default config file")
-			panic(err)
-		}
-	}
+	cobra.CheckErr(ensureConfigFile(cfgFile))
 
 	verbose, _ := rootCmd.Flags().GetBool("verbose")
 	// If a config file is found, read it in.
@@ -101,6 +97,25 @@ func initConfig() {
 	if err == nil && verbose {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func ensureConfigFile(path string) error {
+	if _, err := os.Stat(path); err == nil {
+		return nil
+	} else if !os.IsNotExist(err) {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0o600)
+	if err != nil {
+		if os.IsExist(err) {
+			return nil
+		}
+		return err
+	}
+	return f.Close()
 }
 
 func printJsonResponse(data interface{}) error {

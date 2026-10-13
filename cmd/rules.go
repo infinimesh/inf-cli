@@ -47,7 +47,7 @@ func ruleFromFlags(cmd *cobra.Command, rule *rulespb.Rule) {
 }
 
 func ruleFlags(cmd *cobra.Command) {
-	cmd.Flags().String("namespace", "", "Namespace")
+	cmd.Flags().StringP("namespace", "n", "", "Namespace")
 	cmd.Flags().String("name", "", "Rule name")
 	cmd.Flags().String("when", "", "CEL expression that raises the alarm")
 	cmd.Flags().String("clear", "", "CEL expression that clears the alarm")
