@@ -50,6 +50,53 @@ go build -o inf .
 
 `make commit-check` runs `fmt`, `race`, `test-fuzz`, and `code-ql-gate`. `fmt` writes Go files that `gofmt` would change. `code-ql` runs the CodeQL CLI and writes SARIF under `.tmp/codeql/`. The gate fails when a result is level `error`, ignoring paths under `vendor`. `jq` is required. GitHub Actions runs the same race and fuzz steps, and CodeQL on pull requests.
 
+## Versions
+
+`inf` 3.4 talks to core 3.4. Rules, alarms, audit, plugins, namespace OTA, and quotas need a core built from `v3.4.0-rc.9` or newer. Older cores still serve devices, accounts, and namespaces.
+
+A quota of zero means unlimited.
+
+## Login
+
+```shell
+inf login api.localhost:8000 --ca-file ./ca.pem
+inf login api.localhost:8000 --insecure-skip-verify
+```
+
+`--ca-file` is the PEM of CAs to trust. `--insecure-skip-verify` accepts any certificate. `--insecure` is plain HTTP/2 and is a different switch. Login stores the host, the token, and those TLS settings.
+
+Compose with `BASE_DOMAIN=localhost` uses `console.localhost`, `api.localhost`, and `media.localhost`. Each host has its own certificate. The CLI trusts `--ca-file` for both the API and `inf media`.
+
+`inf login` prints a confirmation. Add `--print-token` to show the bearer.
+
+## Device template
+
+`inf devices create` reads a JSON or YAML file and `--crt`.
+
+```yaml
+title: pump
+enabled: true
+tags:
+  - plant
+```
+
+```shell
+inf devices create pump.yaml --crt pump.pem --namespace <namespace>
+```
+
+## Media and metrics
+
+```shell
+inf media --url https://media.localhost list <namespace>
+inf metrics --addr 127.0.0.1:2112
+```
+
+`inf media` defaults to `https://media.localhost`. List, upload, and delete use the stored account token. A downloaded file is public.
+
+Core serves Prometheus on `METRICS_ADDR` (default `:2112`) inside the process. Compose does not publish that port, so pass `--addr`.
+
+`inf ota assign` needs an account token or an addon token. A device token is rejected. `inf plugins create` needs a root token (`POST /v1/token` with `"inf": true`) and prints the addon bearer once.
+
 ## Notes
 
 ### Login

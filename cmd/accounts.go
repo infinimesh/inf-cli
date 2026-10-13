@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"os"
@@ -28,22 +27,15 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
 
 func makeConnection(ctx context.Context) (*grpc.ClientConn, error) {
-	var opts []grpc.DialOption
-	if insec := viper.GetBool("insecure"); insec {
-		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	} else {
-		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
-			InsecureSkipVerify: true,
-		})))
+	creds, err := transportCreds()
+	if err != nil {
+		return nil, err
 	}
-
-	return grpc.DialContext(ctx, viper.GetString("infinimesh"), opts...)
+	return grpc.DialContext(ctx, viper.GetString("infinimesh"), grpc.WithTransportCredentials(creds))
 }
 
 // make AccountsServiceClient
@@ -120,12 +112,14 @@ var getAccountCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get infinimesh Account",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 || args[0] == "" {
+			return errors.New("account is required")
+		}
 		ctx := makeContextWithBearerToken()
 		client, err := makeAccountsServiceClient(ctx)
 		if err != nil {
 			return err
 		}
-
 		r, err := client.Get(ctx, &accpb.Account{Uuid: args[0]})
 		if err != nil {
 			return err
@@ -248,6 +242,7 @@ func init() {
 	createAccountCmd.Flags().String("ldap-provider-key", "", "LDAP Provider Key for LDAP Credentials")
 
 	accountsCmd.AddCommand(getAccountCmd)
+	rootCmd.AddCommand(whoamiCmd)
 	accountsCmd.AddCommand(listAccountsCmd)
 	accountsCmd.AddCommand(createAccountCmd)
 	accountsCmd.AddCommand(toggleAccountCmd)

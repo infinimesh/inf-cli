@@ -26,7 +26,6 @@ import (
 	"strings"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
-	"github.com/infinimesh/core/pkg/convert"
 	pb "github.com/infinimesh/proto/node"
 	"github.com/infinimesh/proto/node/access"
 	devpb "github.com/infinimesh/proto/node/devices"
@@ -58,7 +57,7 @@ func makeShadowServiceClient(ctx context.Context) (pb.ShadowServiceClient, error
 var devicesCmd = &cobra.Command{
 	Use:     "devices",
 	Short:   "Manage infinimesh Devices",
-	Aliases: []string{"device", "dev"},
+	Aliases: []string{"device"},
 	RunE:    listDevicesCmd.RunE,
 }
 
@@ -91,12 +90,14 @@ var getDeviceCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get infinimesh device",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 || args[0] == "" {
+			return errors.New("device is required")
+		}
 		ctx := makeContextWithBearerToken()
 		client, err := makeDevicesServiceClient(ctx)
 		if err != nil {
 			return err
 		}
-
 		r, err := client.Get(ctx, &devpb.Device{Uuid: args[0]})
 		if err != nil {
 			return err
@@ -116,12 +117,14 @@ var makeDeviceTokenCmd = &cobra.Command{
 	Short:   "Make device token",
 	Aliases: []string{"tok", "t"},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return errors.New("device is required")
+		}
 		ctx := makeContextWithBearerToken()
 		client, err := makeDevicesServiceClient(ctx)
 		if err != nil {
 			return err
 		}
-
 		devices := map[string]access.Level{}
 		for _, d := range args {
 			devices[d] = access.Level_NONE
@@ -186,7 +189,7 @@ The template holds the device fields, for example {"title": "pump-7", "enabled":
 		switch format {
 		case "json":
 		case "yml", "yaml":
-			template, err = convert.ConvertBytes(template)
+			template, err = yamlToJSON(template)
 		default:
 			return errors.New("Unsupported template format " + format)
 		}
@@ -239,6 +242,9 @@ var mgmtDeviceStateCmd = &cobra.Command{
 	Use:   "state",
 	Short: "Manage device state",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 || args[0] == "" {
+			return errors.New("device is required")
+		}
 		ctx := makeContextWithBearerToken()
 
 		patch, _ := cmd.Flags().GetString("patch")
@@ -446,12 +452,12 @@ var mgmtDevIceStateMQTTCmd = &cobra.Command{
 				return err
 			}
 
-			opts.SetTLSConfig(&tls.Config{
-				Certificates:       []tls.Certificate{cert},
-				ClientAuth:         tls.NoClientCert,
-				ClientCAs:          nil,
-				InsecureSkipVerify: true,
-			})
+			cfg, err := tlsConfig()
+			if err != nil {
+				return err
+			}
+			cfg.Certificates = []tls.Certificate{cert}
+			opts.SetTLSConfig(cfg)
 
 			if port == "" {
 				port = "8883"
@@ -519,8 +525,12 @@ func PrintSingleDevice(d *devpb.Device) {
 	}
 	fmt.Printf("Tags: %s\n", tags)
 
-	fingerprint := hex.EncodeToString(d.Certificate.Fingerprint)
-	fmt.Printf("Fingerprint:\n  Algorythm: %s\n  Hash: %s\n", d.Certificate.Algorithm, fingerprint)
+	algorithm, hash := "-", "-"
+	if d.Certificate != nil {
+		algorithm = d.Certificate.Algorithm
+		hash = hex.EncodeToString(d.Certificate.Fingerprint)
+	}
+	fmt.Printf("Fingerprint:\n  Algorithm: %s\n  Hash: %s\n", algorithm, hash)
 }
 
 func PrintSingleDeviceState(state *shadowpb.Shadow) {
