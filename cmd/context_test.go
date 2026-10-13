@@ -95,6 +95,37 @@ func TestLoginStoresContext(t *testing.T) {
 	}
 }
 
+func TestLoginDropsSkipVerify(t *testing.T) {
+	tempDir := t.TempDir()
+	cfg := filepath.Join(tempDir, "config.yaml")
+	initialized = false
+	cfgFile = cfg
+	viper.Reset()
+	initConfig()
+	viper.Set("insecure_skip_verify", true)
+
+	startAccounts(t)
+	if err := loginCmd.RunE(loginCmd, nil); err != nil {
+		t.Fatal(err)
+	}
+	if viper.GetBool("insecure_skip_verify") {
+		t.Fatal("login kept insecure_skip_verify")
+	}
+}
+
+func TestSetVersion(t *testing.T) {
+	prev := VERSION
+	t.Cleanup(func() { VERSION = prev })
+	SetVersion("")
+	if VERSION != prev {
+		t.Fatal("empty stamp replaced the version")
+	}
+	SetVersion("3.4.0-rc.11")
+	if getVersion() != "3.4.0-rc.11" {
+		t.Fatalf("version %q", getVersion())
+	}
+}
+
 func TestLoginCAFileClearsSkipVerify(t *testing.T) {
 	tempDir := t.TempDir()
 	cfg := filepath.Join(tempDir, "config.yaml")

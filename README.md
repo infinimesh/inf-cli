@@ -63,7 +63,7 @@ inf login api.localhost:443 --insecure-skip-verify
 inf login --root api.localhost:443 --insecure-skip-verify
 ```
 
-The API on Compose is `api.localhost:443`. A host with no port is dialed on 443. The default Traefik certificate does not cover `api.localhost`, so a local login passes `--insecure-skip-verify`. `--ca-file` is the PEM of CAs to trust when the certificate matches the host. Login stores that file as an absolute path. A later `--ca-file` login checks the certificate again. `--insecure` is plain HTTP/2 and is a different switch. Login stores the host, the token, and those TLS settings.
+The API on Compose is `api.localhost:443`. A host with no port is dialed on 443. The default Traefik certificate does not cover `api.localhost`, so a local login passes `--insecure-skip-verify`. `--ca-file` is the PEM of CAs to trust when the certificate matches the host. Login stores that file as an absolute path. A later login checks the certificate again unless that login passes `--insecure-skip-verify`. `--insecure` is plain HTTP/2 and is a different switch. Login stores the host, the token, and those TLS settings.
 
 `--root` asks for a root token. `inf plugins create` and `inf plugins delete` need one. A login without `--root` is an account token. `inf accounts list` with a root token lists every account.
 

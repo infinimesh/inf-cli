@@ -97,6 +97,10 @@ var loginCmd = &cobra.Command{
 			return err
 		}
 
+		if !rootCmd.PersistentFlags().Changed("insecure-skip-verify") {
+			viper.Set("insecure_skip_verify", false)
+		}
+
 		insec := flagBool("insecure", "insecure")
 		creds, err := transportCreds()
 		if err != nil {
@@ -143,17 +147,12 @@ var loginCmd = &cobra.Command{
 
 		skipVerify := flagBool("insecure-skip-verify", "insecure_skip_verify")
 		caFile := flagString("ca-file", "ca_file")
-		if rootCmd.PersistentFlags().Changed("ca-file") {
-			if caFile != "" {
-				abs, err := filepath.Abs(caFile)
-				if err != nil {
-					return err
-				}
-				caFile = abs
+		if rootCmd.PersistentFlags().Changed("ca-file") && caFile != "" {
+			abs, err := filepath.Abs(caFile)
+			if err != nil {
+				return err
 			}
-			if !rootCmd.PersistentFlags().Changed("insecure-skip-verify") {
-				skipVerify = false
-			}
+			caFile = abs
 		}
 
 		viper.Set("infinimesh", resolvedHost)
