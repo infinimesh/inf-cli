@@ -50,7 +50,9 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.SilenceUsage = true
+	rootCmd.SilenceErrors = true
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.default.infinimesh.yaml)")
+	rootCmd.PersistentFlags().String("token", "", "Bearer for this command. Does not replace the stored token")
 	rootCmd.PersistentFlags().Bool("json", false, "Print output as json")
 	rootCmd.PersistentFlags().Bool("verbose", false, "Print additional info related to the CLI itself")
 	rootCmd.PersistentFlags().Bool("insecure", false, "Use plain HTTP/2 instead of TLS")

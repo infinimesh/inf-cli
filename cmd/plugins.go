@@ -113,9 +113,9 @@ var getPluginCmd = &cobra.Command{
 var createPluginCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a plugin",
-	Long: `Create needs a root token. Mint one with POST /v1/token and "inf": true.
+	Long: `Create needs a root token. Log in with inf login --root.
 
-The addon bearer is printed once and is not stored.`,
+The addon bearer is printed once and is not stored. Pass it with --token.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		title, _ := cmd.Flags().GetString("title")
 		if title == "" {

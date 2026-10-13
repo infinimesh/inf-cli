@@ -52,18 +52,26 @@ go build -o inf .
 
 ## Versions
 
-`inf` 3.4 talks to core 3.4. Rules, alarms, audit, plugins, namespace OTA, and quotas need a core built from `v3.4.0-rc.9` or newer. Older cores still serve devices, accounts, and namespaces.
+`inf` 3.4 talks to core 3.4. Rules, alarms, audit, plugins, namespace OTA, and quotas need a core built from `v3.4.0-rc.11` or newer. Older cores still serve devices, accounts, and namespaces.
 
-A quota of zero means unlimited.
+A quota of zero means unlimited. Set one with `inf ns create` or `inf ns update` (`--max-devices`, `--device-mps`, `--namespace-mps`).
 
 ## Login
 
 ```shell
-inf login api.localhost:8000 --ca-file ./ca.pem
-inf login api.localhost:8000 --insecure-skip-verify
+inf login api.localhost:443 --insecure-skip-verify
+inf login --root api.localhost:443 --insecure-skip-verify
 ```
 
-`--ca-file` is the PEM of CAs to trust. `--insecure-skip-verify` accepts any certificate. `--insecure` is plain HTTP/2 and is a different switch. Login stores the host, the token, and those TLS settings.
+The API on Compose is `api.localhost:443`. A host with no port is dialed on 443. The default Traefik certificate does not cover `api.localhost`, so a local login passes `--insecure-skip-verify`. `--ca-file` is the PEM of CAs to trust when the certificate matches the host. Login stores that file as an absolute path. A later `--ca-file` login checks the certificate again. `--insecure` is plain HTTP/2 and is a different switch. Login stores the host, the token, and those TLS settings.
+
+`--root` asks for a root token. `inf plugins create` and `inf plugins delete` need one. A login without `--root` is an account token. `inf accounts list` with a root token lists every account.
+
+`inf plugins create` prints the addon bearer once and does not store it. Pass that bearer on the next command with `--token`. `--token` does not replace the stored login.
+
+```shell
+inf --token "$ADDON" ota assign --device <device> --version 1.2.3
+```
 
 Compose with `BASE_DOMAIN=localhost` uses `console.localhost`, `api.localhost`, and `media.localhost`. Each host has its own certificate. The CLI trusts `--ca-file` for both the API and `inf media`.
 
@@ -93,9 +101,9 @@ inf metrics --addr 127.0.0.1:2112
 
 `inf media` defaults to `https://media.localhost`. List, upload, and delete use the stored account token. A downloaded file is public.
 
-Core serves Prometheus on `METRICS_ADDR` (default `:2112`) inside the process. Compose does not publish that port, so pass `--addr`.
+Each core process serves Prometheus on `METRICS_ADDR` (default `:2112`) inside that process. Compose publishes host port 2112 on the mqtt bridge only, so `inf metrics` requires `--addr`. `infinimesh_up` is 1 while that process is serving `/metrics`.
 
-`inf ota assign` needs an account token or an addon token. A device token is rejected. `inf plugins create` needs a root token (`POST /v1/token` with `"inf": true`) and prints the addon bearer once.
+`inf ota assign` needs an account token or an addon token, plus `--version` and one of `--namespace`, `--tag`, or `--device`. A device token is rejected. A refused device is still a successful call. The error is that device's result.
 
 ## Notes
 

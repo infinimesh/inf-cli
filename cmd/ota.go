@@ -37,8 +37,8 @@ var assignOTACmd = &cobra.Command{
 		version, _ := cmd.Flags().GetString("version")
 		tag, _ := cmd.Flags().GetString("tag")
 		devices, _ := cmd.Flags().GetStringSlice("device")
-		if ns == "" || version == "" {
-			return errors.New("--namespace and --version are required")
+		if version == "" || (ns == "" && tag == "" && len(devices) == 0) {
+			return errors.New("--version and one of --namespace, --tag, or --device are required")
 		}
 		ctx := makeContextWithBearerToken()
 		client, err := makeNodeShadowClient(ctx)
@@ -76,7 +76,7 @@ func init() {
 	assignOTACmd.Flags().String("namespace", "", "Namespace")
 	assignOTACmd.Flags().String("version", "", "Firmware version")
 	assignOTACmd.Flags().String("tag", "", "Only devices with this tag")
-	assignOTACmd.Flags().StringSlice("device", nil, "Device uuid (repeatable). Empty means every device in the namespace")
+	assignOTACmd.Flags().StringSlice("device", nil, "Device uuid (repeatable). With no namespace or tag, these are the devices to assign")
 	otaCmd.AddCommand(assignOTACmd)
 	rootCmd.AddCommand(otaCmd)
 }

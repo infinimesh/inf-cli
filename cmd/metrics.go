@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -11,13 +12,13 @@ import (
 var metricsCmd = &cobra.Command{
 	Use:   "metrics",
 	Short: "Print Prometheus metrics",
-	Long: `Each core process serves GET /metrics on METRICS_ADDR. The default is :2112 and it stays inside the process.
+	Long: `Each core process serves GET /metrics on METRICS_ADDR. That default is :2112 and it stays inside the process.
 
-Compose does not publish 2112. Pass --addr with a host you can reach.`,
+Compose publishes host port 2112 on the mqtt bridge only. Pass --addr for the process you want. A quiet process still exports infinimesh_up.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		addr, _ := cmd.Flags().GetString("addr")
 		if addr == "" {
-			addr = "127.0.0.1:2112"
+			return errors.New("--addr is required. Compose publishes 2112 on the mqtt bridge. Other processes serve :2112 inside the container")
 		}
 		raw := addr
 		if !strings.Contains(addr, "://") {
@@ -46,6 +47,6 @@ Compose does not publish 2112. Pass --addr with a host you can reach.`,
 }
 
 func init() {
-	metricsCmd.Flags().String("addr", "127.0.0.1:2112", "Host and port, or a full URL, of a process metrics listener")
+	metricsCmd.Flags().String("addr", "", "Host and port, or a full URL, of one process metrics listener")
 	rootCmd.AddCommand(metricsCmd)
 }

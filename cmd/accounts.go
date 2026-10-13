@@ -50,6 +50,9 @@ func makeAccountsServiceClient(ctx context.Context) (pb.AccountsServiceClient, e
 // make context with bearer token metadata
 func makeContextWithBearerToken() context.Context {
 	token := viper.GetString("token")
+	if rootCmd.PersistentFlags().Changed("token") {
+		token, _ = rootCmd.PersistentFlags().GetString("token")
+	}
 	if token == "" {
 		return context.Background()
 	}
