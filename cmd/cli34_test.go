@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"bytes"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	rulespb "github.com/infinimesh/proto/node/rules"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
@@ -157,6 +159,36 @@ func TestLoginErrorIsNotPrintedByCobra(t *testing.T) {
 	err := rootCmd.Execute()
 	if err == nil || strings.Contains(buf.String(), err.Error()) {
 		t.Fatalf("cobra printed %q (%v)", buf.String(), err)
+	}
+}
+
+func TestNamespaceShortFlag(t *testing.T) {
+	for _, cmd := range []*cobra.Command{createDeviceCmd, createRuleCmd, listAlarmsCmd} {
+		flag := cmd.Flags().ShorthandLookup("n")
+		if flag == nil || flag.Name != "namespace" {
+			t.Fatalf("%s -n is %v", cmd.CommandPath(), flag)
+		}
+	}
+}
+
+func TestInitConfigCreatesMissingFolder(t *testing.T) {
+	prevInit, prevCfg := initialized, cfgFile
+	dir := filepath.Join(t.TempDir(), "missing")
+	initialized = false
+	cfgFile = filepath.Join(dir, "config.yaml")
+	viper.Reset()
+	t.Cleanup(func() {
+		initialized = prevInit
+		cfgFile = prevCfg
+		viper.Reset()
+	})
+	initConfig()
+	info, err := os.Stat(cfgFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info.IsDir() {
+		t.Fatal("config path is a directory")
 	}
 }
 

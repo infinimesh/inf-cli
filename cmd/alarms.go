@@ -116,7 +116,7 @@ var clearAlarmCmd = &cobra.Command{
 }
 
 func init() {
-	listAlarmsCmd.Flags().String("namespace", "", "Namespace")
+	listAlarmsCmd.Flags().StringP("namespace", "n", "", "Namespace")
 	listAlarmsCmd.Flags().String("device", "", "Device")
 	listAlarmsCmd.Flags().String("state", "raised", "raised, acked, cleared, or any")
 	for _, c := range []*cobra.Command{ackAlarmCmd, clearAlarmCmd} {
