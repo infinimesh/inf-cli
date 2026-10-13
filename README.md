@@ -52,7 +52,7 @@ go build -o inf .
 
 ## Versions
 
-`inf` 3.4 talks to core 3.4. Rules, alarms, audit, plugins, namespace OTA, and quotas need a core built from `v3.4.0-rc.11` or newer. Older cores still serve devices, accounts, and namespaces.
+`inf` 3.4 talks to core 3.4. Rules, alarms, audit, plugins, namespace OTA, and quotas need core `v3.4.0` or newer. The 3.2 CLI cannot log in to a 3.4 core. Each core release also releases `inf` with the same version, and a final release updates the Homebrew formula. Older cores still serve devices, accounts, and namespaces.
 
 A quota of zero means unlimited. Set one with `inf ns create` or `inf ns update` (`--max-devices`, `--device-mps`, `--namespace-mps`).
 
@@ -104,6 +104,8 @@ inf metrics --addr 127.0.0.1:2112
 Each core process serves Prometheus on `METRICS_ADDR` (default `:2112`) inside that process. Compose publishes host port 2112 on the mqtt bridge only, so `inf metrics` requires `--addr`. `infinimesh_up` is 1 while that process is serving `/metrics`.
 
 `inf ota assign` needs an account token or an addon token, plus `--version` and one of `--namespace`, `--tag`, or `--device`. A device token is rejected. A refused device is still a successful call. The error is that device's result.
+
+A full walkthrough, including the OTA addon order (root login, `inf plugins create --kind ota`, then `inf ns update --ota --provider`), is in the [CLI guide](https://github.com/infinimesh/docs/blob/main/guides/cli-getting-started.md).
 
 ## Notes
 
