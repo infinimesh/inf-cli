@@ -5,7 +5,7 @@ go 1.27.2
 require (
 	cel.dev/cel-go v0.32.0
 	github.com/eclipse/paho.mqtt.golang v1.5.1
-	github.com/infinimesh/proto v1.0.1-0.20261013112834-63b2beb6d56e
+	github.com/infinimesh/proto v1.1.1-0.20261014074439-65ebadbbaa04
 	github.com/jedib0t/go-pretty/v6 v6.8.3
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10

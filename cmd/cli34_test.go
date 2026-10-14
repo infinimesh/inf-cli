@@ -89,6 +89,17 @@ func TestDryRunCompilesCEL(t *testing.T) {
 	}
 }
 
+func TestOTAProviderUsesRequest(t *testing.T) {
+	if otaProviderUsesRequest("none") || otaProviderUsesRequest("") || otaProviderUsesRequest("other") {
+		t.Fatal("only hawkbit, mender, and webhook request")
+	}
+	for _, provider := range []string{"hawkbit", "mender", "webhook"} {
+		if !otaProviderUsesRequest(provider) {
+			t.Fatal(provider)
+		}
+	}
+}
+
 func TestAssignAndAuditRequireFilters(t *testing.T) {
 	_ = assignOTACmd.Flags().Set("namespace", "")
 	_ = assignOTACmd.Flags().Set("version", "")

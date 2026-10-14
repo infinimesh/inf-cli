@@ -103,7 +103,7 @@ inf metrics --addr 127.0.0.1:2112
 
 Each core process serves Prometheus on `METRICS_ADDR` (default `:2112`) inside that process. Compose publishes host port 2112 on the mqtt bridge only, so `inf metrics` requires `--addr`. `infinimesh_up` is 1 while that process is serving `/metrics`.
 
-`inf ota assign` needs an account token or an addon token, plus `--version` and one of `--namespace`, `--tag`, or `--device`. A device token is rejected. A refused device is still a successful call. The error is that device's result.
+`inf ota assign` needs an account token or an addon token, plus `--version` and one of `--namespace`, `--tag`, or `--device`. A device token is rejected. A refused device is still a successful call. The error is that device's result. When the namespace provider is `hawkbit`, `mender`, or `webhook`, the command calls `POST /v1/devices/ota:request` and stores `requested_version`. Provider `none` still calls `POST /v1/devices/ota:assign` and stores `version`. A tag with no namespace stays on assign. Devices in namespaces that do not share one write path need `--namespace`.
 
 A full walkthrough, including the OTA addon order (root login, `inf plugins create --kind ota`, then `inf ns update --ota --provider`), is in the [CLI guide](https://github.com/infinimesh/docs/blob/main/guides/cli-getting-started.md).
 
