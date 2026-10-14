@@ -183,6 +183,32 @@ var deletePluginCmd = &cobra.Command{
 	},
 }
 
+var rotatePluginCmd = &cobra.Command{
+	Use:   "rotate <uuid>",
+	Short: "Rotate an OTA plugin token",
+	Long: `Rotate needs a root token. The new bearer is printed once.
+The plugin stays registered.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 || args[0] == "" {
+			return errors.New("plugin is required")
+		}
+		ctx := makeContextWithBearerToken()
+		client, err := makePluginsClient(ctx)
+		if err != nil {
+			return err
+		}
+		res, err := client.RotateToken(ctx, &plugpb.Plugin{Uuid: args[0]})
+		if err != nil {
+			return err
+		}
+		if printJson, _ := cmd.Flags().GetBool("json"); printJson {
+			return printJsonResponse(res)
+		}
+		printPlugin(res)
+		return nil
+	},
+}
+
 func mustString(cmd *cobra.Command, name string) string {
 	v, _ := cmd.Flags().GetString(name)
 	return v
@@ -202,6 +228,6 @@ func init() {
 	createPluginCmd.Flags().Bool("public", false, "Visible in every namespace")
 	createPluginCmd.Flags().String("description", "", "Description")
 	createPluginCmd.Flags().String("frame-url", "", "Embedded frame URL")
-	pluginsCmd.AddCommand(listPluginsCmd, getPluginCmd, createPluginCmd, deletePluginCmd)
+	pluginsCmd.AddCommand(listPluginsCmd, getPluginCmd, createPluginCmd, deletePluginCmd, rotatePluginCmd)
 	rootCmd.AddCommand(pluginsCmd)
 }
