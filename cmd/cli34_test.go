@@ -89,6 +89,16 @@ func TestDryRunCompilesCEL(t *testing.T) {
 	}
 }
 
+func TestRotatePluginRequiresUUID(t *testing.T) {
+	cmd, _, err := rootCmd.Find([]string{"plugins", "rotate"})
+	if err != nil || cmd == nil || cmd.Name() != "rotate" {
+		t.Fatalf("rotate: %v %v", cmd, err)
+	}
+	if err := cmd.RunE(cmd, nil); err == nil || !strings.Contains(err.Error(), "plugin is required") {
+		t.Fatalf("%v", err)
+	}
+}
+
 func TestOTAProviderUsesRequest(t *testing.T) {
 	if otaProviderUsesRequest("none") || otaProviderUsesRequest("") || otaProviderUsesRequest("other") {
 		t.Fatal("only hawkbit, mender, and webhook request")
