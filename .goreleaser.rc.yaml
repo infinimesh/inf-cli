@@ -1,6 +1,0 @@
-version: 2
-
-release:
-  prerelease: "true"
-  header: |
-    This release is for testing, not for production.
