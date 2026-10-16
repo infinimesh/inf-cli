@@ -49,7 +49,12 @@ release:
   github:
     owner: infinimesh
     name: inf-cli
+  prerelease: auto
   make_latest: '{{ if contains "-rc." .Tag }}false{{ else }}true{{ end }}'
+  header: |
+    {{- if .Prerelease }}
+    This release is for testing, not for production.
+    {{- end }}
 
 brews:
   - name: inf
