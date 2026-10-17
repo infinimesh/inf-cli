@@ -5,21 +5,21 @@
 class Inf < Formula
   desc "Command line tool for the infinimesh IoT platform"
   homepage "https://github.com/infinimesh/inf-cli"
-  version "3.4.2"
+  version "3.4.3"
   license "Apache-2.0"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/infinimesh/inf-cli/releases/download/v3.4.2/inf_3.4.2_darwin_amd64.tar.gz"
-      sha256 "b7a74733d0a0b3edd0ac645545f6b44de348947a8a89bb6dc14694332fcbad4e"
+      url "https://github.com/infinimesh/inf-cli/releases/download/v3.4.3/inf_3.4.3_darwin_amd64.tar.gz"
+      sha256 "a35bdef7f462ff52b0f171cae6f0e69b4ca8b0dd5689d581b5d4728716ed9825"
 
       define_method(:install) do
         bin.install "inf"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/infinimesh/inf-cli/releases/download/v3.4.2/inf_3.4.2_darwin_arm64.tar.gz"
-      sha256 "67140248a2caaa4dc239264099df6c0279bc424e3f123b4744e7ad32cf7d307a"
+      url "https://github.com/infinimesh/inf-cli/releases/download/v3.4.3/inf_3.4.3_darwin_arm64.tar.gz"
+      sha256 "76f891cf525bca60590b235ee218a364cd0ae1a46d344ad438c47b6f28f84d02"
 
       define_method(:install) do
         bin.install "inf"
@@ -29,15 +29,15 @@ class Inf < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/infinimesh/inf-cli/releases/download/v3.4.2/inf_3.4.2_linux_amd64.tar.gz"
-      sha256 "b31f9a4c72f1afded78cdcef2ebef3da359b09840ce74ab489c94524e05a698d"
+      url "https://github.com/infinimesh/inf-cli/releases/download/v3.4.3/inf_3.4.3_linux_amd64.tar.gz"
+      sha256 "22014402b195ddb0d055dcc6d9659b7e909cb362641e0e639646e140a1ada79f"
       define_method(:install) do
         bin.install "inf"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/infinimesh/inf-cli/releases/download/v3.4.2/inf_3.4.2_linux_arm64.tar.gz"
-      sha256 "b50d83155d83cb801531a8b12f9d4d67f0a9e3422a2cb4b053c01a1fd4edc6ef"
+      url "https://github.com/infinimesh/inf-cli/releases/download/v3.4.3/inf_3.4.3_linux_arm64.tar.gz"
+      sha256 "f803049acacbeea6b0808884f7b694c705063f62ed263f56f816b950d454f204"
       define_method(:install) do
         bin.install "inf"
       end
