@@ -17,7 +17,7 @@ jobs:
       HAS_APP: ${{ secrets.RELEASE_APP_ID != '' && secrets.RELEASE_APP_PRIVATE_KEY != '' }}
     steps:
       # The App token lets the Homebrew formula PR start CI so it can auto-merge.
-      - uses: actions/create-github-app-token@v2
+      - uses: actions/create-github-app-token@v3
         if: env.HAS_APP == 'true'
         id: app
         with:

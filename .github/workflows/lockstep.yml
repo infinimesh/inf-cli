@@ -26,7 +26,7 @@ jobs:
           fi
           printf '%s\n' "$V" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$' || { echo "::error::bad version $V"; exit 1; }
           echo "run=true" >> "$GITHUB_OUTPUT"
-      - uses: actions/create-github-app-token@v2
+      - uses: actions/create-github-app-token@v3
         if: steps.ok.outputs.run == 'true'
         id: app
         with:
