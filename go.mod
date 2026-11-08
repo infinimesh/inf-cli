@@ -5,7 +5,7 @@ go 1.27.2
 toolchain go1.27.3
 
 require (
-	cel.dev/cel-go v0.32.0
+	cel.dev/cel-go v0.33.2
 	github.com/eclipse/paho.mqtt.golang v1.5.1
 	github.com/infinimesh/proto v1.2.0
 	github.com/jedib0t/go-pretty/v6 v6.8.3
